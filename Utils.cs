@@ -65,4 +65,31 @@ namespace Evdokimov_David_PRI_121_CourseProject
             return z;
         }
     }
+
+    public class Utils
+    {
+        public static float[,] initCameraPositions()
+        {
+            float[,] camera_date = new float[10, 7];
+
+            // Общий вид
+            camera_date[0, 0] = 0;
+            camera_date[0, 1] = 0;
+            camera_date[0, 2] = -90;
+            camera_date[0, 3] = -70;
+            camera_date[0, 4] = 1f;
+            camera_date[0, 5] = 0f;
+            camera_date[0, 6] = 0f;
+            // Тир
+            camera_date[1, 0] = 5;
+            camera_date[1, 1] = 2;
+            camera_date[1, 2] = -25;
+            camera_date[1, 3] = -75;
+            camera_date[1, 4] = 1f;
+            camera_date[1, 5] = 0.3f;
+            camera_date[1, 6] = 0.4f;
+
+            return camera_date;
+        }
+    }
 }

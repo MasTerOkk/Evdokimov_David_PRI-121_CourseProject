@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tao.FreeGlut;
 using Tao.OpenGl;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Evdokimov_David_PRI_121_CourseProject
 {
@@ -16,7 +17,8 @@ namespace Evdokimov_David_PRI_121_CourseProject
     {
         private Surroundings surroundings = new Surroundings();
 
-        private float[,] camera_date = new float[5, 7];
+        private float[,] camera_date = Utils.initCameraPositions();
+        //private float[,] camera_date = new float[5, 7];
         double a = 0, b = -0.575, c = -8.5, d = -61, zoom = 0.5;
         double translateX = 0, translateY = 0, translateZ = 0;
         public Form1()
@@ -52,15 +54,8 @@ namespace Evdokimov_David_PRI_121_CourseProject
             Gl.glEnable(Gl.GL_COLOR_MATERIAL);
             Gl.glEnable(Gl.GL_NORMALIZE);
 
+            Cam.SelectedIndex = 0;
             RenderTimer.Start();
-
-            camera_date[0, 0] = 0;
-            camera_date[0, 1] = 0;
-            camera_date[0, 2] = -90;
-            camera_date[0, 3] = -70;
-            camera_date[0, 4] = 1f;
-            camera_date[0, 5] = 0f;
-            camera_date[0, 6] = 0f;
         }
 
         private void RenderTimer_Tick(object sender, EventArgs e)
@@ -76,7 +71,7 @@ namespace Evdokimov_David_PRI_121_CourseProject
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
             // очищение текущей матрицы
             Gl.glLoadIdentity();
-            int camera = 0;
+            int camera = Cam.SelectedIndex;
             Gl.glTranslated(camera_date[camera, 0] + translateX, camera_date[camera, 1] + translateY, camera_date[camera, 2] + translateZ);
             Gl.glRotated(camera_date[camera, 3], camera_date[camera, 4] + a / 500, camera_date[camera, 5] + a / 500, camera_date[camera, 6] + a / 500);
             // и масштабирование объекта

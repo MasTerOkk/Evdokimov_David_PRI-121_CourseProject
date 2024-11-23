@@ -31,6 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.AnT = new Tao.Platform.Windows.SimpleOpenGlControl();
             this.RenderTimer = new System.Windows.Forms.Timer(this.components);
+            this.Cam = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // AnT
@@ -53,11 +54,23 @@
             // 
             this.RenderTimer.Tick += new System.EventHandler(this.RenderTimer_Tick);
             // 
+            // Cam
+            // 
+            this.Cam.FormattingEnabled = true;
+            this.Cam.Items.AddRange(new object[] {
+            "Cam1",
+            "Cam2"});
+            this.Cam.Location = new System.Drawing.Point(794, 528);
+            this.Cam.Name = "Cam";
+            this.Cam.Size = new System.Drawing.Size(121, 21);
+            this.Cam.TabIndex = 1;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(928, 523);
+            this.ClientSize = new System.Drawing.Size(928, 561);
+            this.Controls.Add(this.Cam);
             this.Controls.Add(this.AnT);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -70,6 +83,7 @@
 
         private Tao.Platform.Windows.SimpleOpenGlControl AnT;
         private System.Windows.Forms.Timer RenderTimer;
+        private System.Windows.Forms.ComboBox Cam;
     }
 }
 
