@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tao.DevIl;
+using Tao.OpenGl;
 
 namespace Evdokimov_David_PRI_121_CourseProject
 {
@@ -66,8 +68,22 @@ namespace Evdokimov_David_PRI_121_CourseProject
         }
     }
 
+    public enum Phrase
+    {
+        TALK,
+        SHOOT,
+        BIG_SHOOT
+    }
+
+    public enum State
+    {
+        IDLE,
+        CRASHED_GUN,
+    }
     public class Utils
     {
+        private static WMPLib.WindowsMediaPlayer WMP = new WMPLib.WindowsMediaPlayer();
+
         public static float[,] initCameraPositions()
         {
             float[,] camera_date = new float[10, 7];
@@ -91,5 +107,44 @@ namespace Evdokimov_David_PRI_121_CourseProject
 
             return camera_date;
         }
+
+        public static void frase(Phrase phrase)
+        {
+            switch (phrase)
+            {
+                case Phrase.TALK:
+                    WMP.URL = @"frase.mp3";
+                    WMP.controls.play();
+                    break;
+                case Phrase.SHOOT:
+                    WMP.URL = @"shoot.mp3";
+                    WMP.controls.play();
+                    break;
+                case Phrase.BIG_SHOOT:
+                    WMP.URL = @"big-shoot.mp3";
+                    WMP.controls.play();
+                    break;
+            }
+            
+        }
+
+        public static void SetVolume(int volume)
+        {
+           WMP.settings.volume = volume;
+        }
+
+        public static string state(State state)
+        {
+            switch (state)
+            {
+                case State.IDLE:
+                    return "wolf_state_idle.png";
+                case State.CRASHED_GUN:
+                    return "wolf_state_crashed_gun.png";
+            }
+            return null;
+
+        }
+
     }
 }

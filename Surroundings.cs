@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
 using Tao.OpenGl;
 
 namespace Evdokimov_David_PRI_121_CourseProject
@@ -18,6 +19,43 @@ namespace Evdokimov_David_PRI_121_CourseProject
             DrowParalelepiped(new Point(-50, -50, 0), new Point(50, 50, -2), new RGB(1, 1, 1));
             // Тир
             DrowShootingGallery();
+        }
+
+        public void DrowWolf(State state)
+        {
+            switch (state)
+            {
+                case State.IDLE:
+                    Gl.glBegin(Gl.GL_QUADS);
+
+
+                    Gl.glVertex3d(0, -21, -4);
+                    Gl.glTexCoord2f(0, 1);
+                    Gl.glVertex3d(0, -21, 15);
+                    Gl.glTexCoord2f(1, 1);
+                    Gl.glVertex3d(0, -40, 15);
+                    Gl.glTexCoord2f(1, 0);
+                    Gl.glVertex3d(0, -40, -3);
+                    Gl.glTexCoord2f(0, 0);
+
+                    Gl.glEnd();
+                    break;
+                case State.CRASHED_GUN:
+                    Gl.glBegin(Gl.GL_QUADS);
+
+
+                    Gl.glVertex3d(0, -22, 0);
+                    Gl.glTexCoord2f(0, 1);
+                    Gl.glVertex3d(0, -22, 15);
+                    Gl.glTexCoord2f(1, 1);
+                    Gl.glVertex3d(0, -41, 15);
+                    Gl.glTexCoord2f(1, 0);
+                    Gl.glVertex3d(0, -41, 0);
+                    Gl.glTexCoord2f(0, 0);
+
+                    Gl.glEnd();
+                    break;
+            }
         }
 
         private void DrowShootingGallery()
@@ -93,5 +131,49 @@ namespace Evdokimov_David_PRI_121_CourseProject
             Gl.glDisable(Gl.GL_TEXTURE_2D);
             Gl.glPopMatrix();
         }
+
+        public void DrawSierpinskiTriangle3D(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int depth)
+        {
+            if (depth == 0)
+            {
+                Gl.glBegin(Gl.GL_TRIANGLES);
+                // First face
+                Gl.glVertex3f(p1.X, p1.Y, p1.Z);
+                Gl.glVertex3f(p2.X, p2.Y, p2.Z);
+                Gl.glVertex3f(p3.X, p3.Y, p3.Z);
+
+                // Second face
+                Gl.glVertex3f(p1.X, p1.Y, p1.Z);
+                Gl.glVertex3f(p2.X, p2.Y, p2.Z);
+                Gl.glVertex3f(p4.X, p4.Y, p4.Z);
+
+                // Third face
+                Gl.glVertex3f(p1.X, p1.Y, p1.Z);
+                Gl.glVertex3f(p3.X, p3.Y, p3.Z);
+                Gl.glVertex3f(p4.X, p4.Y, p4.Z);
+
+                // Fourth face
+                Gl.glVertex3f(p2.X, p2.Y, p2.Z);
+                Gl.glVertex3f(p3.X, p3.Y, p3.Z);
+                Gl.glVertex3f(p4.X, p4.Y, p4.Z);
+
+                Gl.glEnd();
+            }
+            else
+            {
+                Vector3 mid12 = (p1 + p2) / 2;
+                Vector3 mid13 = (p1 + p3) / 2;
+                Vector3 mid14 = (p1 + p4) / 2;
+                Vector3 mid23 = (p2 + p3) / 2;
+                Vector3 mid24 = (p2 + p4) / 2;
+                Vector3 mid34 = (p3 + p4) / 2;
+
+                DrawSierpinskiTriangle3D(p1, mid12, mid13, mid14, depth - 1);
+                DrawSierpinskiTriangle3D(mid12, p2, mid23, mid24, depth - 1);
+                DrawSierpinskiTriangle3D(mid13, mid23, p3, mid34, depth - 1);
+                DrawSierpinskiTriangle3D(mid14, mid24, mid34, p4, depth - 1);
+            }
+        }
+
     }
 }
