@@ -66,8 +66,9 @@
             this.Cam.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.Cam.FormattingEnabled = true;
             this.Cam.Items.AddRange(new object[] {
-            "Cam1",
-            "Cam2"});
+            "Камера № 1",
+            "Камера № 2",
+            "Камера № 3"});
             this.Cam.Location = new System.Drawing.Point(794, 528);
             this.Cam.Name = "Cam";
             this.Cam.Size = new System.Drawing.Size(121, 21);

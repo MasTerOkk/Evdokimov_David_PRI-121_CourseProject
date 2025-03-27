@@ -32,7 +32,11 @@ namespace Evdokimov_David_PRI_121_CourseProject
         float big_shoot_time = 0;
         State wolfState = State.IDLE;
 
+        float xMove = 0f;
+
         uint wolfSign;
+        uint pictureSign;
+        uint zayacSign;
         private int imageId;
 
         float cameraSpeed = 1;
@@ -143,10 +147,12 @@ namespace Evdokimov_David_PRI_121_CourseProject
             // Звук
             Utils.SetVolume(trackBar1.Value);
 
-            Cam.SelectedIndex = 1;
+            Cam.SelectedIndex = 2;
             RenderTimer.Start();
 
             wolfSign = genImage(Utils.state(State.IDLE));
+            pictureSign = genImageWithEmboss(Utils.SPRITES_PATH + "picture.jpeg");
+            zayacSign = genImage(Utils.SPRITES_PATH + "zayac.png");
         }
 
         private void RenderTimer_Tick(object sender, EventArgs e)
@@ -168,9 +174,20 @@ namespace Evdokimov_David_PRI_121_CourseProject
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
             // очищение текущей матрицы
             Gl.glLoadIdentity();
+
             int camera = Cam.SelectedIndex;
             Gl.glTranslated(camera_date[camera, 0] + translateX, camera_date[camera, 1] + translateY, camera_date[camera, 2] + translateZ);
-            Gl.glRotated(camera_date[camera, 3], camera_date[camera, 4] + a / 500, camera_date[camera, 5] + a / 500, camera_date[camera, 6] + a / 500);
+
+            // Специальная коррекция для камеры 2
+            if (camera == 2)
+            {
+                Gl.glRotated(-90, 0, 1, 0); // Дополнительный поворот для коррекции
+                Gl.glRotated(-15, 0, 0, 1); // Дополнительный поворот для коррекции
+            }
+
+            Gl.glRotated(camera_date[camera, 3], camera_date[camera, 4] + a / 500,
+                        camera_date[camera, 5] + a / 500, camera_date[camera, 6] + a / 500);
+
             // и масштабирование объекта
             Gl.glScaled(zoom, zoom, zoom);
             // помещаем состояние матрицы в стек матриц, дальнейшие трансформации затронут только визуализацию объекта
@@ -182,6 +199,7 @@ namespace Evdokimov_David_PRI_121_CourseProject
             Gl.glFlush();
             BOOOOM_1.Calculate(global_time);
 
+            //Отрисовка волка
             Gl.glEnable(Gl.GL_TEXTURE_2D);
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, wolfSign);
             Gl.glPushMatrix();
@@ -190,6 +208,59 @@ namespace Evdokimov_David_PRI_121_CourseProject
 
             Gl.glPopMatrix();
             Gl.glDisable(Gl.GL_TEXTURE_2D);
+
+            //Отрисовка картины
+            Gl.glEnable(Gl.GL_TEXTURE_2D);
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, pictureSign);
+            Gl.glPushMatrix();
+
+            Gl.glBegin(Gl.GL_QUADS);
+
+
+            Gl.glVertex3d(20.1f, -20, 3);
+            Gl.glTexCoord2f(0, 1);
+            Gl.glVertex3d(20.1f, -20, 20);
+            Gl.glTexCoord2f(1, 1);
+            Gl.glVertex3d(20.1f, 0, 20);
+            Gl.glTexCoord2f(1, 0);
+            Gl.glVertex3d(20.1f, 0, 3);
+            Gl.glTexCoord2f(0, 0);
+
+            Gl.glEnd();
+
+            Gl.glPopMatrix();
+            Gl.glDisable(Gl.GL_TEXTURE_2D);
+
+            //Отрисовка зайца
+            Gl.glEnable(Gl.GL_TEXTURE_2D);
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, zayacSign);
+            Gl.glPushMatrix();
+
+            Gl.glBegin(Gl.GL_QUADS);
+
+            if (global_time % 20 > 10)
+            {
+                xMove += .05f;
+            }
+            else
+            {
+                xMove -= .05f;
+            }
+
+            Gl.glVertex3d(10 + xMove * 5, 10, 2);
+            Gl.glTexCoord2f(0, 1);
+            Gl.glVertex3d(10 + xMove * 5, 10, 10);
+            Gl.glTexCoord2f(1, 1);
+            Gl.glVertex3d(15 + xMove * 5, 10, 10);
+            Gl.glTexCoord2f(1, 0);
+            Gl.glVertex3d(15 + xMove * 5, 10, 2);
+            Gl.glTexCoord2f(0, 0);
+
+            Gl.glEnd();
+
+            Gl.glPopMatrix();
+            Gl.glDisable(Gl.GL_TEXTURE_2D);
+
             Gl.glColor3f(255, 0, 0);
             Vector3 p1 = new Vector3(0, 29.9f, 0);
             Vector3 p2 = new Vector3(-10, 29.9f, 10);
@@ -247,6 +318,70 @@ namespace Evdokimov_David_PRI_121_CourseProject
             }
             Il.ilDeleteImages(1, ref imageId);
             return sign;
+        }
+
+        private uint genImageWithEmboss(string imagePath)
+        {
+            uint textureId = 0;
+            int tempImageId = 0;
+
+            Il.ilGenImages(1, out tempImageId);
+            Il.ilBindImage(tempImageId);
+
+            if (!Il.ilLoadImage(imagePath))
+            {
+                Il.ilDeleteImages(1, ref tempImageId);
+                return 0;
+            }
+
+            int width = Il.ilGetInteger(Il.IL_IMAGE_WIDTH);
+            int height = Il.ilGetInteger(Il.IL_IMAGE_HEIGHT);
+            int bpp = Il.ilGetInteger(Il.IL_IMAGE_BITS_PER_PIXEL);
+
+            if (bpp == 24)
+                Il.ilConvertImage(Il.IL_RGB, Il.IL_UNSIGNED_BYTE);
+            else if (bpp == 32)
+                Il.ilConvertImage(Il.IL_RGBA, Il.IL_UNSIGNED_BYTE);
+
+            IntPtr imageData = Il.ilGetData();
+            byte[] originalBytes = new byte[width * height * (bpp / 8)];
+            System.Runtime.InteropServices.Marshal.Copy(imageData, originalBytes, 0, originalBytes.Length);
+
+            byte[] embossedBytes = new byte[width * height * 3]; 
+            int offset = 2; 
+
+            for (int y = 0; y < height - offset; y++)
+            {
+                for (int x = 0; x < width - offset; x++)
+                {
+                    int origPos = (y * width + x) * (bpp / 8);
+                    int offsetPos = ((y + offset) * width + (x + offset)) * (bpp / 8);
+
+                    byte r = (byte)(128 + (originalBytes[origPos] - originalBytes[offsetPos]));
+                    byte g = (byte)(128 + (originalBytes[origPos + 1] - originalBytes[offsetPos + 1]));
+                    byte b = (byte)(128 + (originalBytes[origPos + 2] - originalBytes[offsetPos + 2]));
+
+                    int embossPos = (y * width + x) * 3;
+                    embossedBytes[embossPos] = r;
+                    embossedBytes[embossPos + 1] = g;
+                    embossedBytes[embossPos + 2] = b;
+                }
+            }
+
+            Gl.glGenTextures(1, out textureId);
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, textureId);
+
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT);
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT);
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR);
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR);
+
+            Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB, width, height, 0,
+                           Gl.GL_RGB, Gl.GL_UNSIGNED_BYTE, embossedBytes);
+
+            Il.ilDeleteImages(1, ref tempImageId);
+
+            return textureId;
         }
 
         private uint MakeGlTexture(int Format, IntPtr pixels, int w, int h)

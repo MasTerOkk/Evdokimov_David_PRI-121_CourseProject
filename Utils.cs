@@ -84,6 +84,9 @@ namespace Evdokimov_David_PRI_121_CourseProject
     {
         private static WMPLib.WindowsMediaPlayer WMP = new WMPLib.WindowsMediaPlayer();
 
+        public static string SOUNDS_PATH = "./assets/sounds/";
+        public static string SPRITES_PATH = "./assets/sprites/";
+
         public static float[,] initCameraPositions()
         {
             float[,] camera_date = new float[10, 7];
@@ -96,6 +99,7 @@ namespace Evdokimov_David_PRI_121_CourseProject
             camera_date[0, 4] = 1f;
             camera_date[0, 5] = 0f;
             camera_date[0, 6] = 0f;
+
             // Тир
             camera_date[1, 0] = 5;
             camera_date[1, 1] = 2;
@@ -105,6 +109,14 @@ namespace Evdokimov_David_PRI_121_CourseProject
             camera_date[1, 5] = 0.3f;
             camera_date[1, 6] = 0.4f;
 
+            camera_date[2, 0] = 7;   // X позиция (отрицательное - левее)
+            camera_date[2, 1] = -5;   // Y позиция (высота)
+            camera_date[2, 2] = -30;    // Z позиция
+            camera_date[2, 3] = -90;   // Основной поворот влево (по оси Y)
+            camera_date[2, 4] = 1.0f;  // Ось X поворота (добавляем для коррекции)
+            camera_date[2, 5] = 0.0f;  // Ось Y поворота
+            camera_date[2, 6] = 0.0f;  // Ось Z поворота
+
             return camera_date;
         }
 
@@ -113,15 +125,15 @@ namespace Evdokimov_David_PRI_121_CourseProject
             switch (phrase)
             {
                 case Phrase.TALK:
-                    WMP.URL = @"frase.mp3";
+                    WMP.URL = @SOUNDS_PATH + "frase.mp3";
                     WMP.controls.play();
                     break;
                 case Phrase.SHOOT:
-                    WMP.URL = @"shoot.mp3";
+                    WMP.URL = @SOUNDS_PATH + "shoot.mp3";
                     WMP.controls.play();
                     break;
                 case Phrase.BIG_SHOOT:
-                    WMP.URL = @"big-shoot.mp3";
+                    WMP.URL = @SOUNDS_PATH + "big-shoot.mp3";
                     WMP.controls.play();
                     break;
             }
@@ -138,9 +150,9 @@ namespace Evdokimov_David_PRI_121_CourseProject
             switch (state)
             {
                 case State.IDLE:
-                    return "wolf_state_idle.png";
+                    return SPRITES_PATH + "wolf_state_idle.png";
                 case State.CRASHED_GUN:
-                    return "wolf_state_crashed_gun.png";
+                    return SPRITES_PATH + "wolf_state_crashed_gun.png";
             }
             return null;
 
