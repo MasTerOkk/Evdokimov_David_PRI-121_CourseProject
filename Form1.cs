@@ -18,15 +18,17 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Evdokimov_David_PRI_121_CourseProject
 {
+    // Основная форма приложения с 3D сценой
     public partial class Form1 : Form
     {
         private Surroundings surroundings = new Surroundings();
 
+        // Конфигурация камеры и трансформаций
         private float[,] camera_date = Utils.initCameraPositions();
         double a = 0, b = -0.575, c = -8.5, d = -61, zoom = 0.5;
         double translateX = 0, translateY = 0, translateZ = 0;
 
-        // отсчет времени
+        // Тайминги анимаций и состояний
         float global_time = 0;
         private Explosion BOOOOM_1 = new Explosion(1, 10, 1, 300, 30);
         float big_shoot_time = 0;
@@ -34,19 +36,31 @@ namespace Evdokimov_David_PRI_121_CourseProject
 
         float xMove = 0f;
 
+        // Текстуры для объектов
         uint wolfSign;
         uint pictureSign;
         uint zayacSign;
         private int imageId;
 
+        private bool isDayTime = true; // Флаг времени суток
+
         float cameraSpeed = 1;
 
         public Form1()
         {
+            // Инициализация OpenGL/GLUT контекста
             InitializeComponent();
             AnT.InitializeContexts();
         }
 
+        private void button3_Click(object sender, EventArgs e)
+        {
+            isDayTime = !isDayTime;
+            button3.Text = isDayTime ? "Ночь" : "День";
+            AnT.Invalidate(); // Перерисовываем сцену
+        }
+
+        // Обработка ввода для управления камерой
         private void AnT_KeyDown(object sender, KeyEventArgs e)
         {
             int camera = Cam.SelectedIndex;
@@ -155,6 +169,12 @@ namespace Evdokimov_David_PRI_121_CourseProject
             zayacSign = genImage(Utils.SPRITES_PATH + "zayac.png");
         }
 
+        private void оПрограммеToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form Info = new Info();
+            Info.ShowDialog();
+        }
+
         private void RenderTimer_Tick(object sender, EventArgs e)
         {
             global_time += (float)RenderTimer.Interval / 1000;
@@ -166,13 +186,18 @@ namespace Evdokimov_David_PRI_121_CourseProject
             }
         }
 
+        // Основной цикл рендеринга
         private void Draw()
         {
             Gl.glNormal3f(0, 0, 1);
+            // Настройка фона (день/ночь)
+            Gl.glClearColor(
+                isDayTime ? 0.53f : 0.04f,
+                isDayTime ? 0.81f : 0.05f,
+                isDayTime ? 0.92f : 0.12f,
+                1.0f);
 
-            // очистка буфера цвета и буфера глубины
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
-            // очищение текущей матрицы
             Gl.glLoadIdentity();
 
             int camera = Cam.SelectedIndex;
@@ -188,11 +213,9 @@ namespace Evdokimov_David_PRI_121_CourseProject
             Gl.glRotated(camera_date[camera, 3], camera_date[camera, 4] + a / 500,
                         camera_date[camera, 5] + a / 500, camera_date[camera, 6] + a / 500);
 
-            // и масштабирование объекта
             Gl.glScaled(zoom, zoom, zoom);
-            // помещаем состояние матрицы в стек матриц, дальнейшие трансформации затронут только визуализацию объекта
             Gl.glPushMatrix();
-
+            // Отрисовка окружения и объектов
             surroundings.DrawSurroundings();
 
             Gl.glPopMatrix();
@@ -260,7 +283,7 @@ namespace Evdokimov_David_PRI_121_CourseProject
 
             Gl.glPopMatrix();
             Gl.glDisable(Gl.GL_TEXTURE_2D);
-
+            // Фрактал
             Gl.glColor3f(255, 0, 0);
             Vector3 p1 = new Vector3(0, 29.9f, 0);
             Vector3 p2 = new Vector3(-10, 29.9f, 10);
@@ -295,7 +318,7 @@ namespace Evdokimov_David_PRI_121_CourseProject
                 button2.Enabled = true;
             });
         }
-
+        // Генерация текстур с обработкой изображений
         private uint genImage(string image)
         {
             uint sign = 0;

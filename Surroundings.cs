@@ -17,7 +17,7 @@ namespace Evdokimov_David_PRI_121_CourseProject
             DrowShootingGallery();
             DrawTreesAndBushes();
         }
-
+        // Функция отрисовки волка
         public void DrowWolf(State state)
         {
             switch (state)
@@ -128,7 +128,7 @@ namespace Evdokimov_David_PRI_121_CourseProject
             Gl.glDisable(Gl.GL_TEXTURE_2D);
             Gl.glPopMatrix();
         }
-
+        // Функция отрисовки фрактала
         public void DrawSierpinskiTriangle3D(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int depth)
         {
             if (depth == 0)
@@ -167,7 +167,7 @@ namespace Evdokimov_David_PRI_121_CourseProject
                 DrawSierpinskiTriangle3D(mid14, mid24, mid34, p4, depth - 1);
             }
         }
-
+        // Функция отрисовки кустов и деревьев
         public void DrawTreesAndBushes()
         {
             // Зона 1: x от -95 до 95, y от 70 до 95
@@ -228,26 +228,30 @@ namespace Evdokimov_David_PRI_121_CourseProject
             DrawBush(new Point(77, 50, -2), 4, new RGB(0, 0.55f, 0));
             DrawBush(new Point(74, 80, -2), 5, new RGB(0, 0.55f, 0));
         }
-
+        // Функция отрисовки деревьев
         private void DrawTree(Point position, float height, float trunkWidth, RGB trunkColor, RGB foliageColor)
         {
             // Рисуем ствол
-            DrowParalelepiped(
-                new Point((float) position.getX() - trunkWidth / 2, (float) position.getY() - trunkWidth / 2, (float) position.getZ()),
-                new Point((float) position.getX() + trunkWidth / 2, (float) position.getY() + trunkWidth / 2, (float) position.getZ() + height * 0.4f),
-                trunkColor);
+            Gl.glPushMatrix();
+            Gl.glColor3f(trunkColor.getR(), trunkColor.getG(), trunkColor.getB());
+            Gl.glTranslated(position.getX(), position.getY(), position.getZ());
+            Glu.GLUquadric trunkQuad = Glu.gluNewQuadric();
+            Glu.gluCylinder(trunkQuad, trunkWidth / 2, trunkWidth / 2, height * 0.4f, 20, 20);
+            Glu.gluDeleteQuadric(trunkQuad);
+            Gl.glPopMatrix();
 
-            // Рисуем крону (как конус)
+            // Рисуем крону
             Gl.glPushMatrix();
             Gl.glColor3f(foliageColor.getR(), foliageColor.getG(), foliageColor.getB());
             Gl.glTranslated(position.getX(), position.getY(), position.getZ() + height * 0.4f);
-            Glu.GLUquadric quad = Glu.gluNewQuadric();
-            Glu.gluCylinder(quad, height * 0.3f, 0, height * 0.6f, 20, 20);
-            Glu.gluDisk(quad, 0, height * 0.3f, 20, 20);
-            Glu.gluDeleteQuadric(quad);
+            Glu.GLUquadric foliageQuad = Glu.gluNewQuadric();
+            Glu.gluCylinder(foliageQuad, height * 0.3f, 0, height * 0.6f, 20, 20);
+            // Основание конуса
+            Glu.gluDisk(foliageQuad, 0, height * 0.3f, 20, 20);
+            Glu.gluDeleteQuadric(foliageQuad);
             Gl.glPopMatrix();
         }
-
+        // Функция отрисовки кустов
         private void DrawBush(Point position, float size, RGB color)
         {
             Gl.glPushMatrix();
@@ -261,15 +265,13 @@ namespace Evdokimov_David_PRI_121_CourseProject
             Vector3[] profile = new Vector3[layers];
             for (int i = 0; i < layers; i++)
             {
-                float t = i / (float)(layers - 1); // Нормализованный параметр [0..1]
+                float t = i / (float)(layers - 1);
 
-                // Точки и касательные для полинома Эрмита
-                Vector3 p0 = new Vector3(0, 0, size * 0.7f);  // Верхняя точка
-                Vector3 p1 = new Vector3(size * 0.3f, 0, 0);  // Нижняя точка
+                Vector3 p0 = new Vector3(0, 0, size * 0.7f);
+                Vector3 p1 = new Vector3(size * 0.3f, 0, 0); 
                 Vector3 m0 = new Vector3(size * 0.5f, 0, size * 0.5f);
                 Vector3 m1 = new Vector3(-size * 0.2f, 0, size * 0.3f);
 
-                // Вычисляем точку на кривой Эрмита
                 float h1 = 2 * t * t * t - 3 * t * t + 1;
                 float h2 = -2 * t * t * t + 3 * t * t;
                 float h3 = t * t * t - 2 * t * t + t;
@@ -290,7 +292,6 @@ namespace Evdokimov_David_PRI_121_CourseProject
                     Vector3 p1 = profile[i];
                     Vector3 p2 = profile[i + 1];
 
-                    // Верхняя точка текущего слоя
                     Vector3 v1 = new Vector3(
                         (float)(p1.X * Math.Cos(angle1)),
                         (float)(p1.X * Math.Sin(angle1)),
@@ -301,7 +302,6 @@ namespace Evdokimov_David_PRI_121_CourseProject
                         (float)(p1.X * Math.Sin(angle2)),
                         p1.Z);
 
-                    // Нижняя точка следующего слоя
                     Vector3 v3 = new Vector3(
                         (float)(p2.X * Math.Cos(angle2)),
                         (float)(p2.X * Math.Sin(angle2)),
@@ -312,8 +312,6 @@ namespace Evdokimov_David_PRI_121_CourseProject
                         (float)(p2.X * Math.Sin(angle1)),
                         p2.Z);
 
-
-                    // Вершины квадрата (порядок изменен для корректного отображения перевернутой формы)
                     Gl.glVertex3f(v1.X, v1.Y, v1.Z);
                     Gl.glVertex3f(v4.X, v4.Y, v4.Z);
                     Gl.glVertex3f(v3.X, v3.Y, v3.Z);

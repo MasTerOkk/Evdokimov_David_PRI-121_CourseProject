@@ -87,6 +87,7 @@ namespace Evdokimov_David_PRI_121_CourseProject
         public static string SOUNDS_PATH = "./assets/sounds/";
         public static string SPRITES_PATH = "./assets/sprites/";
 
+        // Позиции камеры
         public static float[,] initCameraPositions()
         {
             float[,] camera_date = new float[10, 7];
@@ -120,6 +121,7 @@ namespace Evdokimov_David_PRI_121_CourseProject
             return camera_date;
         }
 
+        // Фразы и звуки
         public static void frase(Phrase phrase)
         {
             switch (phrase)
@@ -140,11 +142,13 @@ namespace Evdokimov_David_PRI_121_CourseProject
             
         }
 
+        // Громкость звука
         public static void SetVolume(int volume)
         {
            WMP.settings.volume = volume;
         }
 
+        // Состояния волка
         public static string state(State state)
         {
             switch (state)
